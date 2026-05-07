@@ -82,9 +82,9 @@
 
       CHARACTER*(MAX_LEN_FNAM) belliObs_Dir
       CHARACTER*(MAX_LEN_FNAM) belliObs_Files(NFILESMAX_BELLI)
-      CHARACTER*(8)  belli_nameval
+      CHARACTER*(9)  belli_nameval
       CHARACTER*(8)  belli_namemask
-      CHARACTER*(11) belli_nameuncert
+      CHARACTER*(12) belli_nameuncert
       CHARACTER*(7)  belli_nameequi
       COMMON /BELLI_COST_C/                                                                                                         &
      &                belliObs_Dir, belliObs_Files,                                                                                         &
