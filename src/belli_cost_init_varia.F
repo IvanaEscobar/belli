@@ -54,7 +54,7 @@ C Initialize tiled cost fxn contributions.
           DO num_file = 1, NFILESMAX_BELLI
             belli_dummy(num_file,bi,bj) = 0. _d 0
 # ifdef ALLOW_GRDCHK
-            IF ( obsNo_tiled(num_file,bi,bj).GT.0 .AND.
+            IF ( belliObsNo_tiled(num_file,bi,bj).GT.0 .AND.
      &           belliDoNcOutput ) THEN
 C Sync tiled .equi file so data in buffer is not lost
               err = NF_SYNC( ncidFWD(num_file,bi,bj) )
@@ -70,7 +70,7 @@ C Sync tiled .equi file so data in buffer is not lost
           ENDIF
 #  endif /* ALLOW_TANGENTLINEAR_RUN */
 
-            ENDIF !IF obsNo_tiled
+            ENDIF !IF belliObsNo_tiled
 # endif /* ALLOW_GRDCHK */
 
           ENDDO !DO num_file
