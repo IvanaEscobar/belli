@@ -52,6 +52,9 @@ public :: writearrivalsbinary
 !==============================================
 ! declare parameters
 !==============================================
+integer, private, parameter :: belli_max_idw = 4
+integer, private, parameter :: belli_max_nc_size = 15
+integer, private, parameter :: belli_max_range = 22
 integer, private, parameter :: cachelinesize = 256
 integer, private, parameter :: comm_get = 4
 integer, private, parameter :: comm_msg = 2
@@ -73,9 +76,6 @@ integer, private, parameter :: forward_simulation = 0
 integer, private, parameter :: gsvec_size = 1024
 double precision, private, parameter :: halfrl = 0.5d0
 double precision, private, parameter :: halfrs = 0.5d0
-integer, private, parameter :: belli_max_idw = 4
-integer, private, parameter :: belli_max_nc_size = 15
-integer, private, parameter :: belli_max_range = 6
 integer, parameter :: ikind1 = 8
 integer, parameter :: ikind2 = 8
 integer, parameter :: ikind3 = 8
@@ -425,6 +425,125 @@ end type
 !==============================================
 ! declare common blocks
 !==============================================
+integer, private :: belli_curfile_buff
+integer, private :: belli_maxind_buff
+integer, private :: belli_minind_buff
+common /belli_buff_i/ belli_minind_buff, belli_maxind_buff, belli_curfile_buff
+
+double precision, private :: belli_data_buff(1000)
+double precision, private :: belli_uncert_buff(1000)
+common /belli_buff_r/ belli_data_buff, belli_uncert_buff
+
+character(len=7), private :: belli_nameequi
+character(len=8), private :: belli_namemask
+character(len=12), private :: belli_nameuncert
+character(len=9), private :: belli_nameval
+character(len=max_len_fnam), private :: belliobs_dir
+character(len=max_len_fnam), private :: belliobs_files(nfilesmax_belli)
+common /belli_cost_c/ belliobs_dir, belliobs_files, belli_nameval, belli_namemask, belli_nameuncert, belli_nameequi
+
+integer, private :: belliobs_i_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_ind_glob(nfilesmax_belli,nobsmax_belli)
+integer, private :: belliobs_ind_glob_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_j_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_k_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_sample1_ind(nfilesmax_belli,nobsmax_belli)
+integer, private :: belliobsno(nfilesmax_belli)
+integer, private :: belliobsno_tiled(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidad(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidadglob(nfilesmax_belli)
+integer, private :: nciddata(nfilesmax_belli)
+integer, private :: ncidfwd(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidglob(nfilesmax_belli)
+integer, private :: ncidtl(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidtlglob(nfilesmax_belli)
+common /belli_cost_i/ belliobsno, belliobsno_tiled, belliobs_ind_glob, belliobs_ind_glob_tiled, ncidfwd, ncidad, ncidtl, ncidglob, ncidadglob, &
+&ncidtlglob, nciddata, belliobs_i_tiled, belliobs_j_tiled, belliobs_k_tiled, belliobs_sample1_ind
+
+logical, private :: bellidoncoutput
+common /belli_cost_l/ bellidoncoutput
+
+double precision, private :: belliobs_depth(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_lat(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_lon(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_modmask
+double precision, private :: belliobs_modmask_tiled(nsx,nsy)
+double precision, private :: belliobs_time(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_uncert(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: geninfluence(35604)
+double precision, private :: mult_belli(nfilesmax_belli)
+double precision, private :: num_belli(nfilesmax_belli)
+double precision, private :: objf_belli(nfilesmax_belli)
+common /belli_cost_r/ objf_belli, num_belli, mult_belli, belliobs_time, belliobs_lat, belliobs_lon, belliobs_depth, belliobs_uncert, &
+&belliobs_modmask, belliobs_modmask_tiled, geninfluence
+
+double precision, private :: objf_belli_tl(nfilesmax_belli)
+common /belli_cost_r_tl/ objf_belli_tl
+
+double precision, private :: belli_dummy(nfilesmax_belli,nsx,nsy)
+double precision, private :: belli_globaldummy(nfilesmax_belli)
+common /belli_ctrl_dummy/ belli_dummy, belli_globaldummy
+
+double precision, private :: belli_dummy_tl(nfilesmax_belli,nsx,nsy)
+double precision, private :: belli_globaldummy_tl(nfilesmax_belli)
+common /belli_ctrl_dummy_tl/ belli_dummy_tl, belli_globaldummy_tl
+
+logical, private :: belli_mdsio
+logical, private :: belli_mnc
+common /belli_package/ belli_mnc, belli_mdsio
+
+character(len=2), private :: belli_botopt
+character(len=max_len_fnam), private :: belli_fileroot
+character(len=max_len_fnam), private :: belli_interpfile
+character(len=7), private :: belli_runopt
+character(len=max_len_fnam), private :: belli_title
+character(len=6), private :: belli_topopt
+common /belli_params_c/ belli_fileroot, belli_title, belli_topopt, belli_botopt, belli_runopt, belli_interpfile
+
+integer, private :: belli_iter(nts)
+integer, private :: belli_nalpha
+integer, private :: belli_npts_idw
+integer, private :: belli_npts_range
+integer, private :: belli_nrd
+integer, private :: belli_nrr
+integer, private :: belli_nsd
+integer, private :: belli_nts
+common /belli_params_i/ belli_nts, belli_nsd, belli_nrd, belli_nrr, belli_npts_range, belli_npts_idw, belli_nalpha, belli_iter
+
+logical, private :: usesspfile
+logical, private :: writedelay
+common /belli_params_l/ writedelay, usesspfile
+
+double precision, private :: belli_alpha(2)
+double precision, private :: belli_bcsound
+double precision, private :: belli_bcsoundi
+double precision, private :: belli_bcsoundshear
+double precision, private :: belli_bcsoundsheari
+double precision, private :: belli_brho
+double precision, private :: belli_depth
+double precision, private :: belli_dumpfreq
+double precision, private :: belli_freq
+double precision, private :: belli_idw_weights(belli_max_range,belli_max_nc_size)
+double precision, private :: belli_ranges(belli_max_range)
+double precision, private :: belli_rd(nrd)
+double precision, private :: belli_rr(nrr)
+double precision, private :: belli_sd(nsd)
+double precision, private :: belli_step
+double precision, private :: belli_sumweights(belli_max_range,belli_max_nc_size)
+double precision, private :: belli_xc(belli_max_range,belli_max_nc_size)
+double precision, private :: belli_yc(belli_max_range,belli_max_nc_size)
+common /belli_params_r/ belli_dumpfreq, belli_freq, belli_depth, belli_bcsound, belli_bcsoundshear, belli_brho, belli_bcsoundi, belli_bcsoundsheari, &
+&belli_sd, belli_rd, belli_rr, belli_alpha, belli_step, belli_yc, belli_xc, belli_idw_weights, belli_ranges, belli_sumweights
+
+double precision, private :: belli_sld(1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
+common /belli_state_2d/ belli_sld
+
+double precision, private :: belli_ssp(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
+common /belli_state_3d/ belli_ssp
+
+double precision, private :: belli_ssp_tl(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
+common /belli_state_3d_tl/ belli_ssp_tl
+
 integer, private :: eedataunit
 integer, private :: errormessageunit
 integer, private :: ioerrorcount(max_no_threads)
@@ -570,125 +689,6 @@ common /eesupp_mpi_i/ mpipidw, mpipide, mpipids, mpipidn, mpipidse, mpipidsw, mp
 &mpitypexfaceblock_xyz_r4, mpitypexfaceblock_xyz_r8, mpitypeyfaceblock_xyz_r4, mpitypeyfaceblock_xyz_r8, mpitypexfacethread_xy_r4, &
 &mpitypexfacethread_xy_r8, mpitypeyfacethread_xy_r4, mpitypeyfacethread_xy_r8, mpitypexfacethread_xyz_r4, mpitypexfacethread_xyz_r8, &
 &mpitypeyfacethread_xyz_r4, mpitypeyfacethread_xyz_r8, mpitage, mpitagw, mpitagn, mpitags, mpitagse, mpitagsw, mpitagnw, mpitagne
-
-integer, private :: belli_curfile_buff
-integer, private :: belli_maxind_buff
-integer, private :: belli_minind_buff
-common /belli_buff_i/ belli_minind_buff, belli_maxind_buff, belli_curfile_buff
-
-double precision, private :: belli_data_buff(1000)
-double precision, private :: belli_uncert_buff(1000)
-common /belli_buff_r/ belli_data_buff, belli_uncert_buff
-
-character(len=7), private :: belli_nameequi
-character(len=8), private :: belli_namemask
-character(len=11), private :: belli_nameuncert
-character(len=8), private :: belli_nameval
-character(len=max_len_fnam), private :: belliobs_dir
-character(len=max_len_fnam), private :: belliobs_files(nfilesmax_belli)
-common /belli_cost_c/ belliobs_dir, belliobs_files, belli_nameval, belli_namemask, belli_nameuncert, belli_nameequi
-
-integer, private :: belliobs_i_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-integer, private :: belliobs_ind_glob(nfilesmax_belli,nobsmax_belli)
-integer, private :: belliobs_ind_glob_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-integer, private :: belliobs_j_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-integer, private :: belliobs_k_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-integer, private :: belliobs_sample1_ind(nfilesmax_belli,nobsmax_belli)
-integer, private :: ncidad(nfilesmax_belli,nsx,nsy)
-integer, private :: ncidadglob(nfilesmax_belli)
-integer, private :: nciddata(nfilesmax_belli)
-integer, private :: ncidfwd(nfilesmax_belli,nsx,nsy)
-integer, private :: ncidglob(nfilesmax_belli)
-integer, private :: ncidtl(nfilesmax_belli,nsx,nsy)
-integer, private :: ncidtlglob(nfilesmax_belli)
-integer, private :: obsno(nfilesmax_belli)
-integer, private :: obsno_tiled(nfilesmax_belli,nsx,nsy)
-common /belli_cost_i/ obsno, obsno_tiled, belliobs_ind_glob, belliobs_ind_glob_tiled, ncidfwd, ncidad, ncidtl, ncidglob, ncidadglob, ncidtlglob, &
-&nciddata, belliobs_i_tiled, belliobs_j_tiled, belliobs_k_tiled, belliobs_sample1_ind
-
-logical, private :: bellidoncoutput
-common /belli_cost_l/ bellidoncoutput
-
-double precision, private :: geninfluence(35604)
-double precision, private :: belliobs_depth(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-double precision, private :: belliobs_lat(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-double precision, private :: belliobs_lon(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-double precision, private :: belliobs_modmask
-double precision, private :: belliobs_modmask_tiled(nsx,nsy)
-double precision, private :: belliobs_time(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-double precision, private :: belliobs_uncert(nfilesmax_belli,nobsmax_belli,nsx,nsy)
-double precision, private :: mult_belli(nfilesmax_belli)
-double precision, private :: num_belli(nfilesmax_belli)
-double precision, private :: objf_belli(nfilesmax_belli)
-common /belli_cost_r/ objf_belli, num_belli, mult_belli, belliobs_time, belliobs_lat, belliobs_lon, belliobs_depth, belliobs_uncert, belliobs_modmask, &
-&belliobs_modmask_tiled, geninfluence
-
-double precision, private :: objf_belli_tl(nfilesmax_belli)
-common /belli_cost_r_tl/ objf_belli_tl
-
-double precision, private :: belli_dummy(nfilesmax_belli,nsx,nsy)
-double precision, private :: belli_globaldummy(nfilesmax_belli)
-common /belli_ctrl_dummy/ belli_dummy, belli_globaldummy
-
-double precision, private :: belli_dummy_tl(nfilesmax_belli,nsx,nsy)
-double precision, private :: belli_globaldummy_tl(nfilesmax_belli)
-common /belli_ctrl_dummy_tl/ belli_dummy_tl, belli_globaldummy_tl
-
-logical, private :: belli_mdsio
-logical, private :: belli_mnc
-common /belli_package/ belli_mnc, belli_mdsio
-
-character(len=2), private :: belli_botopt
-character(len=max_len_fnam), private :: belli_fileroot
-character(len=max_len_fnam), private :: belli_interpfile
-character(len=7), private :: belli_runopt
-character(len=max_len_fnam), private :: belli_title
-character(len=6), private :: belli_topopt
-common /belli_params_c/ belli_fileroot, belli_title, belli_topopt, belli_botopt, belli_runopt, belli_interpfile
-
-integer, private :: belli_iter(nts)
-integer, private :: belli_nalpha
-integer, private :: belli_npts_idw
-integer, private :: belli_npts_range
-integer, private :: belli_nrd
-integer, private :: belli_nrr
-integer, private :: belli_nsd
-integer, private :: belli_nts
-common /belli_params_i/ belli_nts, belli_nsd, belli_nrd, belli_nrr, belli_npts_range, belli_npts_idw, belli_nalpha, belli_iter
-
-logical, private :: usesspfile
-logical, private :: writedelay
-common /belli_params_l/ writedelay, usesspfile
-
-double precision, private :: belli_alpha(2)
-double precision, private :: belli_bcsound
-double precision, private :: belli_bcsoundi
-double precision, private :: belli_bcsoundshear
-double precision, private :: belli_bcsoundsheari
-double precision, private :: belli_brho
-double precision, private :: belli_depth
-double precision, private :: belli_dumpfreq
-double precision, private :: belli_freq
-double precision, private :: belli_idw_weights(belli_max_range,belli_max_nc_size)
-double precision, private :: belli_ranges(belli_max_range)
-double precision, private :: belli_rd(nrd)
-double precision, private :: belli_rr(nrr)
-double precision, private :: belli_sd(nsd)
-double precision, private :: belli_step
-double precision, private :: belli_sumweights(belli_max_range,belli_max_nc_size)
-double precision, private :: belli_xc(belli_max_range,belli_max_nc_size)
-double precision, private :: belli_yc(belli_max_range,belli_max_nc_size)
-common /belli_params_r/ belli_dumpfreq, belli_freq, belli_depth, belli_bcsound, belli_bcsoundshear, belli_brho, belli_bcsoundi, belli_bcsoundsheari, belli_sd, &
-&belli_rd, belli_rr, belli_alpha, belli_step, belli_yc, belli_xc, belli_idw_weights, belli_ranges, belli_sumweights
-
-double precision, private :: belli_sld(1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
-common /belli_state_2d/ belli_sld
-
-double precision, private :: belli_ssp(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
-common /belli_state_3d/ belli_ssp
-
-double precision, private :: belli_ssp_tl(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
-common /belli_state_3d_tl/ belli_ssp_tl
 
 integer, private :: mpi_comm_model
 common /mpi_comms/ mpi_comm_model
@@ -950,6 +950,7 @@ logical, private :: useatm2d
 logical, private :: useatm_phys
 logical, private :: useautodiff
 logical, private :: usebbl
+logical, private :: usebelli
 logical, private :: usebulkforce
 logical, private :: usecal
 logical, private :: usecheapaml
@@ -970,7 +971,6 @@ logical, private :: usegmredi
 logical, private :: usegrdchk
 logical, private :: usegridalt
 logical, private :: useicefront
-logical, private :: usebelli
 logical, private :: usekl10
 logical, private :: usekpp
 logical, private :: useland
@@ -1824,7 +1824,7 @@ contains
   if (iallocstat /= 0) then
     write(unit=msgbuf,fmt='(2A)') 'ARR_MOD INITARR: ','Not enough allocation for Arr; reduce arrStorage'
     call print_error( msgbuf,mythid )
-    stop 'ABNORMAL END: S/R belli_MAIN'
+    stop 'ABNORMAL END: S/R BELLI_MAIN'
   endif
   call arrivaltypeinit( arr(1,1,1),arr(2,1,1) )
   u = 0.0

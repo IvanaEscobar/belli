@@ -33,7 +33,7 @@
 #undef AUTODIFF_TAMC_COMPATIBILITY
 
 !       >>> Checkpointing as handled by TAMC
-#define ALLOW_TAMC_CHECKPOINTING
+#undef ALLOW_TAMC_CHECKPOINTING
 
 !       >>> Extract adjoint state
 #define ALLOW_AUTODIFF_MONITOR
@@ -51,7 +51,7 @@
 
 ! o This flag is incredibly useful as it reduces the number of
 !   tape-files on the disc. Maybe it should even be the default.
-#define ALLOW_AUTODIFF_WHTAPEIO
+#undef ALLOW_AUTODIFF_WHTAPEIO
 !   and related to above:
 #undef ALLOW_INIT_WHTAPEIO
 

@@ -845,6 +845,7 @@ logical, private :: useatm2d
 logical, private :: useatm_phys
 logical, private :: useautodiff
 logical, private :: usebbl
+logical, private :: usebelli
 logical, private :: usebulkforce
 logical, private :: usecal
 logical, private :: usecheapaml
@@ -865,7 +866,6 @@ logical, private :: usegmredi
 logical, private :: usegrdchk
 logical, private :: usegridalt
 logical, private :: useicefront
-logical, private :: usebelli
 logical, private :: usekl10
 logical, private :: usekpp
 logical, private :: useland
