@@ -30,7 +30,7 @@ module     arr_mod
 !==============================================
 ! referencing used modules
 !==============================================
-use ihop_mod, only : arrfile,rad2deg
+use belli_mod, only : arrfile,rad2deg
 
 implicit none
 
@@ -44,7 +44,7 @@ public :: arr_mod_constructor_tl
 public :: arr_mod_destructor_tl
 public :: bcastarr
 public :: bcastarr_tl
-public :: free_ihop_arrival
+public :: free_belli_arrival
 public :: initarr
 public :: writearrivalsascii
 public :: writearrivalsbinary
@@ -73,9 +73,9 @@ integer, private, parameter :: forward_simulation = 0
 integer, private, parameter :: gsvec_size = 1024
 double precision, private, parameter :: halfrl = 0.5d0
 double precision, private, parameter :: halfrs = 0.5d0
-integer, private, parameter :: ihop_max_idw = 4
-integer, private, parameter :: ihop_max_nc_size = 15
-integer, private, parameter :: ihop_max_range = 6
+integer, private, parameter :: belli_max_idw = 4
+integer, private, parameter :: belli_max_nc_size = 15
+integer, private, parameter :: belli_max_range = 6
 integer, parameter :: ikind1 = 8
 integer, parameter :: ikind2 = 8
 integer, parameter :: ikind3 = 8
@@ -360,8 +360,8 @@ integer, private, parameter :: mpi_win_separate = 1
 integer, private, parameter :: mpi_win_size = 1711276036
 integer, private, parameter :: mpi_win_unified = 2
 integer, private, parameter :: mpi_wtime_is_global = 1681915912
-integer, private, parameter :: nfilesmax_ihop = 1
-integer, private, parameter :: nobsmax_ihop = 10
+integer, private, parameter :: nfilesmax_belli = 1
+integer, private, parameter :: nobsmax_belli = 10
 integer, private, parameter :: npx = 2
 integer, private, parameter :: npy = 2
 integer, private, parameter :: nr = 15
@@ -571,124 +571,124 @@ common /eesupp_mpi_i/ mpipidw, mpipide, mpipids, mpipidn, mpipidse, mpipidsw, mp
 &mpitypexfacethread_xy_r8, mpitypeyfacethread_xy_r4, mpitypeyfacethread_xy_r8, mpitypexfacethread_xyz_r4, mpitypexfacethread_xyz_r8, &
 &mpitypeyfacethread_xyz_r4, mpitypeyfacethread_xyz_r8, mpitage, mpitagw, mpitagn, mpitags, mpitagse, mpitagsw, mpitagnw, mpitagne
 
-integer, private :: ihop_curfile_buff
-integer, private :: ihop_maxind_buff
-integer, private :: ihop_minind_buff
-common /ihop_buff_i/ ihop_minind_buff, ihop_maxind_buff, ihop_curfile_buff
+integer, private :: belli_curfile_buff
+integer, private :: belli_maxind_buff
+integer, private :: belli_minind_buff
+common /belli_buff_i/ belli_minind_buff, belli_maxind_buff, belli_curfile_buff
 
-double precision, private :: ihop_data_buff(1000)
-double precision, private :: ihop_uncert_buff(1000)
-common /ihop_buff_r/ ihop_data_buff, ihop_uncert_buff
+double precision, private :: belli_data_buff(1000)
+double precision, private :: belli_uncert_buff(1000)
+common /belli_buff_r/ belli_data_buff, belli_uncert_buff
 
-character(len=7), private :: ihop_nameequi
-character(len=8), private :: ihop_namemask
-character(len=11), private :: ihop_nameuncert
-character(len=8), private :: ihop_nameval
-character(len=max_len_fnam), private :: ihopobs_dir
-character(len=max_len_fnam), private :: ihopobs_files(nfilesmax_ihop)
-common /ihop_cost_c/ ihopobs_dir, ihopobs_files, ihop_nameval, ihop_namemask, ihop_nameuncert, ihop_nameequi
+character(len=7), private :: belli_nameequi
+character(len=8), private :: belli_namemask
+character(len=11), private :: belli_nameuncert
+character(len=8), private :: belli_nameval
+character(len=max_len_fnam), private :: belliobs_dir
+character(len=max_len_fnam), private :: belliobs_files(nfilesmax_belli)
+common /belli_cost_c/ belliobs_dir, belliobs_files, belli_nameval, belli_namemask, belli_nameuncert, belli_nameequi
 
-integer, private :: ihopobs_i_tiled(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-integer, private :: ihopobs_ind_glob(nfilesmax_ihop,nobsmax_ihop)
-integer, private :: ihopobs_ind_glob_tiled(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-integer, private :: ihopobs_j_tiled(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-integer, private :: ihopobs_k_tiled(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-integer, private :: ihopobs_sample1_ind(nfilesmax_ihop,nobsmax_ihop)
-integer, private :: ncidad(nfilesmax_ihop,nsx,nsy)
-integer, private :: ncidadglob(nfilesmax_ihop)
-integer, private :: nciddata(nfilesmax_ihop)
-integer, private :: ncidfwd(nfilesmax_ihop,nsx,nsy)
-integer, private :: ncidglob(nfilesmax_ihop)
-integer, private :: ncidtl(nfilesmax_ihop,nsx,nsy)
-integer, private :: ncidtlglob(nfilesmax_ihop)
-integer, private :: obsno(nfilesmax_ihop)
-integer, private :: obsno_tiled(nfilesmax_ihop,nsx,nsy)
-common /ihop_cost_i/ obsno, obsno_tiled, ihopobs_ind_glob, ihopobs_ind_glob_tiled, ncidfwd, ncidad, ncidtl, ncidglob, ncidadglob, ncidtlglob, &
-&nciddata, ihopobs_i_tiled, ihopobs_j_tiled, ihopobs_k_tiled, ihopobs_sample1_ind
+integer, private :: belliobs_i_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_ind_glob(nfilesmax_belli,nobsmax_belli)
+integer, private :: belliobs_ind_glob_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_j_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_k_tiled(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+integer, private :: belliobs_sample1_ind(nfilesmax_belli,nobsmax_belli)
+integer, private :: ncidad(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidadglob(nfilesmax_belli)
+integer, private :: nciddata(nfilesmax_belli)
+integer, private :: ncidfwd(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidglob(nfilesmax_belli)
+integer, private :: ncidtl(nfilesmax_belli,nsx,nsy)
+integer, private :: ncidtlglob(nfilesmax_belli)
+integer, private :: obsno(nfilesmax_belli)
+integer, private :: obsno_tiled(nfilesmax_belli,nsx,nsy)
+common /belli_cost_i/ obsno, obsno_tiled, belliobs_ind_glob, belliobs_ind_glob_tiled, ncidfwd, ncidad, ncidtl, ncidglob, ncidadglob, ncidtlglob, &
+&nciddata, belliobs_i_tiled, belliobs_j_tiled, belliobs_k_tiled, belliobs_sample1_ind
 
-logical, private :: ihopdoncoutput
-common /ihop_cost_l/ ihopdoncoutput
+logical, private :: bellidoncoutput
+common /belli_cost_l/ bellidoncoutput
 
 double precision, private :: geninfluence(35604)
-double precision, private :: ihopobs_depth(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-double precision, private :: ihopobs_lat(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-double precision, private :: ihopobs_lon(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-double precision, private :: ihopobs_modmask
-double precision, private :: ihopobs_modmask_tiled(nsx,nsy)
-double precision, private :: ihopobs_time(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-double precision, private :: ihopobs_uncert(nfilesmax_ihop,nobsmax_ihop,nsx,nsy)
-double precision, private :: mult_ihop(nfilesmax_ihop)
-double precision, private :: num_ihop(nfilesmax_ihop)
-double precision, private :: objf_ihop(nfilesmax_ihop)
-common /ihop_cost_r/ objf_ihop, num_ihop, mult_ihop, ihopobs_time, ihopobs_lat, ihopobs_lon, ihopobs_depth, ihopobs_uncert, ihopobs_modmask, &
-&ihopobs_modmask_tiled, geninfluence
+double precision, private :: belliobs_depth(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_lat(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_lon(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_modmask
+double precision, private :: belliobs_modmask_tiled(nsx,nsy)
+double precision, private :: belliobs_time(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: belliobs_uncert(nfilesmax_belli,nobsmax_belli,nsx,nsy)
+double precision, private :: mult_belli(nfilesmax_belli)
+double precision, private :: num_belli(nfilesmax_belli)
+double precision, private :: objf_belli(nfilesmax_belli)
+common /belli_cost_r/ objf_belli, num_belli, mult_belli, belliobs_time, belliobs_lat, belliobs_lon, belliobs_depth, belliobs_uncert, belliobs_modmask, &
+&belliobs_modmask_tiled, geninfluence
 
-double precision, private :: objf_ihop_tl(nfilesmax_ihop)
-common /ihop_cost_r_tl/ objf_ihop_tl
+double precision, private :: objf_belli_tl(nfilesmax_belli)
+common /belli_cost_r_tl/ objf_belli_tl
 
-double precision, private :: ihop_dummy(nfilesmax_ihop,nsx,nsy)
-double precision, private :: ihop_globaldummy(nfilesmax_ihop)
-common /ihop_ctrl_dummy/ ihop_dummy, ihop_globaldummy
+double precision, private :: belli_dummy(nfilesmax_belli,nsx,nsy)
+double precision, private :: belli_globaldummy(nfilesmax_belli)
+common /belli_ctrl_dummy/ belli_dummy, belli_globaldummy
 
-double precision, private :: ihop_dummy_tl(nfilesmax_ihop,nsx,nsy)
-double precision, private :: ihop_globaldummy_tl(nfilesmax_ihop)
-common /ihop_ctrl_dummy_tl/ ihop_dummy_tl, ihop_globaldummy_tl
+double precision, private :: belli_dummy_tl(nfilesmax_belli,nsx,nsy)
+double precision, private :: belli_globaldummy_tl(nfilesmax_belli)
+common /belli_ctrl_dummy_tl/ belli_dummy_tl, belli_globaldummy_tl
 
-logical, private :: ihop_mdsio
-logical, private :: ihop_mnc
-common /ihop_package/ ihop_mnc, ihop_mdsio
+logical, private :: belli_mdsio
+logical, private :: belli_mnc
+common /belli_package/ belli_mnc, belli_mdsio
 
-character(len=2), private :: ihop_botopt
-character(len=max_len_fnam), private :: ihop_fileroot
-character(len=max_len_fnam), private :: ihop_interpfile
-character(len=7), private :: ihop_runopt
-character(len=max_len_fnam), private :: ihop_title
-character(len=6), private :: ihop_topopt
-common /ihop_params_c/ ihop_fileroot, ihop_title, ihop_topopt, ihop_botopt, ihop_runopt, ihop_interpfile
+character(len=2), private :: belli_botopt
+character(len=max_len_fnam), private :: belli_fileroot
+character(len=max_len_fnam), private :: belli_interpfile
+character(len=7), private :: belli_runopt
+character(len=max_len_fnam), private :: belli_title
+character(len=6), private :: belli_topopt
+common /belli_params_c/ belli_fileroot, belli_title, belli_topopt, belli_botopt, belli_runopt, belli_interpfile
 
-integer, private :: ihop_iter(nts)
-integer, private :: ihop_nalpha
-integer, private :: ihop_npts_idw
-integer, private :: ihop_npts_range
-integer, private :: ihop_nrd
-integer, private :: ihop_nrr
-integer, private :: ihop_nsd
-integer, private :: ihop_nts
-common /ihop_params_i/ ihop_nts, ihop_nsd, ihop_nrd, ihop_nrr, ihop_npts_range, ihop_npts_idw, ihop_nalpha, ihop_iter
+integer, private :: belli_iter(nts)
+integer, private :: belli_nalpha
+integer, private :: belli_npts_idw
+integer, private :: belli_npts_range
+integer, private :: belli_nrd
+integer, private :: belli_nrr
+integer, private :: belli_nsd
+integer, private :: belli_nts
+common /belli_params_i/ belli_nts, belli_nsd, belli_nrd, belli_nrr, belli_npts_range, belli_npts_idw, belli_nalpha, belli_iter
 
 logical, private :: usesspfile
 logical, private :: writedelay
-common /ihop_params_l/ writedelay, usesspfile
+common /belli_params_l/ writedelay, usesspfile
 
-double precision, private :: ihop_alpha(2)
-double precision, private :: ihop_bcsound
-double precision, private :: ihop_bcsoundi
-double precision, private :: ihop_bcsoundshear
-double precision, private :: ihop_bcsoundsheari
-double precision, private :: ihop_brho
-double precision, private :: ihop_depth
-double precision, private :: ihop_dumpfreq
-double precision, private :: ihop_freq
-double precision, private :: ihop_idw_weights(ihop_max_range,ihop_max_nc_size)
-double precision, private :: ihop_ranges(ihop_max_range)
-double precision, private :: ihop_rd(nrd)
-double precision, private :: ihop_rr(nrr)
-double precision, private :: ihop_sd(nsd)
-double precision, private :: ihop_step
-double precision, private :: ihop_sumweights(ihop_max_range,ihop_max_nc_size)
-double precision, private :: ihop_xc(ihop_max_range,ihop_max_nc_size)
-double precision, private :: ihop_yc(ihop_max_range,ihop_max_nc_size)
-common /ihop_params_r/ ihop_dumpfreq, ihop_freq, ihop_depth, ihop_bcsound, ihop_bcsoundshear, ihop_brho, ihop_bcsoundi, ihop_bcsoundsheari, ihop_sd, &
-&ihop_rd, ihop_rr, ihop_alpha, ihop_step, ihop_yc, ihop_xc, ihop_idw_weights, ihop_ranges, ihop_sumweights
+double precision, private :: belli_alpha(2)
+double precision, private :: belli_bcsound
+double precision, private :: belli_bcsoundi
+double precision, private :: belli_bcsoundshear
+double precision, private :: belli_bcsoundsheari
+double precision, private :: belli_brho
+double precision, private :: belli_depth
+double precision, private :: belli_dumpfreq
+double precision, private :: belli_freq
+double precision, private :: belli_idw_weights(belli_max_range,belli_max_nc_size)
+double precision, private :: belli_ranges(belli_max_range)
+double precision, private :: belli_rd(nrd)
+double precision, private :: belli_rr(nrr)
+double precision, private :: belli_sd(nsd)
+double precision, private :: belli_step
+double precision, private :: belli_sumweights(belli_max_range,belli_max_nc_size)
+double precision, private :: belli_xc(belli_max_range,belli_max_nc_size)
+double precision, private :: belli_yc(belli_max_range,belli_max_nc_size)
+common /belli_params_r/ belli_dumpfreq, belli_freq, belli_depth, belli_bcsound, belli_bcsoundshear, belli_brho, belli_bcsoundi, belli_bcsoundsheari, belli_sd, &
+&belli_rd, belli_rr, belli_alpha, belli_step, belli_yc, belli_xc, belli_idw_weights, belli_ranges, belli_sumweights
 
-double precision, private :: ihop_sld(1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
-common /ihop_state_2d/ ihop_sld
+double precision, private :: belli_sld(1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
+common /belli_state_2d/ belli_sld
 
-double precision, private :: ihop_ssp(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
-common /ihop_state_3d/ ihop_ssp
+double precision, private :: belli_ssp(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
+common /belli_state_3d/ belli_ssp
 
-double precision, private :: ihop_ssp_tl(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
-common /ihop_state_3d_tl/ ihop_ssp_tl
+double precision, private :: belli_ssp_tl(1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
+common /belli_state_3d_tl/ belli_ssp_tl
 
 integer, private :: mpi_comm_model
 common /mpi_comms/ mpi_comm_model
@@ -970,7 +970,7 @@ logical, private :: usegmredi
 logical, private :: usegrdchk
 logical, private :: usegridalt
 logical, private :: useicefront
-logical, private :: useihop
+logical, private :: usebelli
 logical, private :: usekl10
 logical, private :: usekpp
 logical, private :: useland
@@ -1002,7 +1002,7 @@ common /parm_packages/ usegad, useobcs, useshap_filt, usezonal_filt, useopps, us
 &usedown_slope, usecal, useexf, usebulkforce, useebm, usecheapaml, usegrdchk, usesmooth, useprofiles, useecco, usectrl, usesbo, useflt, useautodiff, &
 &useptracers, usegchem, userbcs, useoffline, usematrix, usefrazil, useseaice, usesalt_plume, useshelfice, usestic, usestreamice, useicefront, &
 &usethsice, useland, useatm2d, useaim, useatm_phys, usefizhi, usegridalt, usediagnostics, useregrid, uselayers, usemnc, userunclock, useembed_files, &
-&usemypackage, useihop
+&usemypackage, usebelli
 
 double precision, private :: abeps
 double precision, private :: adjdumpfreq
@@ -1192,8 +1192,8 @@ common /parm_r/ cg2dtargetresidual, cg2dtargetreswunit, cg2dpcoffdfac, cg3dtarge
 !==============================================
 logical, private :: arrival_type_committed =  .false. 
 logical, private :: arrival_type_committed_tl =  .false. 
-integer, private :: mpi_ihop_arrival = mpi_datatype_null
-integer, private :: mpi_ihop_arrival_tl = mpi_datatype_null
+integer, private :: mpi_belli_arrival = mpi_datatype_null
+integer, private :: mpi_belli_arrival_tl = mpi_datatype_null
 integer, public, allocatable :: narrival(:,:)
 integer, public :: nmaxarr
 complex, public, allocatable :: u(:,:)
@@ -1253,7 +1253,7 @@ contains
 !==============================================
 ! referencing used modules
 !==============================================
-  use ihop_mod, only : srcdeclangle
+  use belli_mod, only : srcdeclangle
 
   implicit none
 
@@ -1338,7 +1338,7 @@ contains
 !==============================================
 ! referencing used modules
 !==============================================
-  use ihop_mod, only : srcdeclangle
+  use belli_mod, only : srcdeclangle
 
   implicit none
 
@@ -1548,8 +1548,8 @@ contains
     call mpi_type_create_struct( n,bl,disp,ty,tmptype,ierr )
     call mpi_get_address( nextarrival,a2,ierr )
     extent = a2-base
-    call mpi_type_create_resized( tmptype,0_mpi_address_kind,extent,mpi_ihop_arrival,ierr )
-    call mpi_type_commit( mpi_ihop_arrival,ierr )
+    call mpi_type_create_resized( tmptype,0_mpi_address_kind,extent,mpi_belli_arrival,ierr )
+    call mpi_type_commit( mpi_belli_arrival,ierr )
     call mpi_type_free( tmptype,ierr )
     arrival_type_committed =  .true. 
   endif
@@ -1623,8 +1623,8 @@ contains
     call mpi_type_create_struct( n,bl,disp,ty,tmptype,ierr )
     call mpi_get_address( nextarrival,a2,ierr )
     extent = a2-base
-    call mpi_type_create_resized( tmptype,0_mpi_address_kind,extent,mpi_ihop_arrival,ierr )
-    call mpi_type_commit( mpi_ihop_arrival,ierr )
+    call mpi_type_create_resized( tmptype,0_mpi_address_kind,extent,mpi_belli_arrival,ierr )
+    call mpi_type_commit( mpi_belli_arrival,ierr )
     call mpi_type_free( tmptype,ierr )
     arrival_type_committed =  .true. 
   endif
@@ -1648,8 +1648,8 @@ contains
     call mpi_type_create_struct( n,bl,disp,ty,tmptype,ierr )
     call mpi_get_address( nextarrival_tl,a2,ierr )
     extent = a2-base
-    call mpi_type_create_resized( tmptype,0_mpi_address_kind,extent,mpi_ihop_arrival_tl,ierr )
-    call mpi_type_commit( mpi_ihop_arrival_tl,ierr )
+    call mpi_type_create_resized( tmptype,0_mpi_address_kind,extent,mpi_belli_arrival_tl,ierr )
+    call mpi_type_commit( mpi_belli_arrival_tl,ierr )
     call mpi_type_free( tmptype,ierr )
     arrival_type_committed =  .true. 
   endif
@@ -1676,7 +1676,7 @@ contains
   integer :: arrsize
   integer :: ierr
 
-  if (mpi_ihop_arrival == mpi_datatype_null) then
+  if (mpi_belli_arrival == mpi_datatype_null) then
     call arrivaltypeinit( arr(1,1,1),arr(2,1,1) )
   endif
   arrsize = size(narrival)
@@ -1684,7 +1684,7 @@ contains
   arrsize = size(geninfluence)
   call mpi_bcast( geninfluence,arrsize,mpi_double_precision,root,comm,ierr )
   arrsize = size(arr)
-  call mpi_bcast( arr,arrsize,mpi_ihop_arrival,root,comm,ierr )
+  call mpi_bcast( arr,arrsize,mpi_belli_arrival,root,comm,ierr )
   end subroutine bcastarr
   subroutine bcastarr_tl( root, comm )
 !******************************************************************
@@ -1710,7 +1710,7 @@ contains
 !----------------------------------------------
 ! TANGENT LINEAR AND FUNCTION STATEMENTS
 !----------------------------------------------
-  if (mpi_ihop_arrival == mpi_datatype_null .or. mpi_ihop_arrival_tl == mpi_datatype_null) then
+  if (mpi_belli_arrival == mpi_datatype_null .or. mpi_belli_arrival_tl == mpi_datatype_null) then
     call arrivaltypeinit_tl( arr(1,1,1),arr_tl(1,1,1),arr(2,1,1),arr_tl(2,1,1) )
   endif
   arrsize = size(narrival)
@@ -1718,11 +1718,11 @@ contains
   arrsize = size(geninfluence)
   call mpi_bcast( geninfluence,arrsize,mpi_double_precision,root,comm,ierr )
   arrsize = size(arr)
-  call mpi_bcast( arr_tl,arrsize,mpi_ihop_arrival_tl,root,comm,ierr )
-  call mpi_bcast( arr,arrsize,mpi_ihop_arrival,root,comm,ierr )
+  call mpi_bcast( arr_tl,arrsize,mpi_belli_arrival_tl,root,comm,ierr )
+  call mpi_bcast( arr,arrsize,mpi_belli_arrival,root,comm,ierr )
 
   end subroutine bcastarr_tl
-  subroutine free_ihop_arrival( mythid )
+  subroutine free_belli_arrival( mythid )
 !******************************************************************
 !******************************************************************
 !** This routine was generated by Automatic differentiation.     **
@@ -1742,16 +1742,16 @@ contains
   integer :: ierr
 
   if (arrival_type_committed) then
-    call mpi_type_free( mpi_ihop_arrival,ierr )
-    mpi_ihop_arrival = mpi_datatype_null
+    call mpi_type_free( mpi_belli_arrival,ierr )
+    mpi_belli_arrival = mpi_datatype_null
     arrival_type_committed =  .false. 
   endif
   if (arrival_type_committed_tl) then
-    call mpi_type_free( mpi_ihop_arrival_tl,ierr )
-    mpi_ihop_arrival_tl = mpi_datatype_null
+    call mpi_type_free( mpi_belli_arrival_tl,ierr )
+    mpi_belli_arrival_tl = mpi_datatype_null
     arrival_type_committed_tl =  .false. 
   endif
-  end subroutine free_ihop_arrival
+  end subroutine free_belli_arrival
   subroutine initarr( mythid )
 !******************************************************************
 !******************************************************************
@@ -1763,7 +1763,7 @@ contains
 ! referencing used modules
 !==============================================
   use srpos_mod, only : pos
-  use ihop_mod, only : beam,nrz_per_range
+  use belli_mod, only : beam,nrz_per_range
 
   implicit none
 
@@ -1824,7 +1824,7 @@ contains
   if (iallocstat /= 0) then
     write(unit=msgbuf,fmt='(2A)') 'ARR_MOD INITARR: ','Not enough allocation for Arr; reduce arrStorage'
     call print_error( msgbuf,mythid )
-    stop 'ABNORMAL END: S/R IHOP_MAIN'
+    stop 'ABNORMAL END: S/R belli_MAIN'
   endif
   call arrivaltypeinit( arr(1,1,1),arr(2,1,1) )
   u = 0.0
@@ -1864,7 +1864,7 @@ contains
   integer :: ir
   integer :: iz
 
-  if (ihop_dumpfreq < 0) then
+  if (belli_dumpfreq < 0) then
     goto 99999
   endif
   arrfmt = '(G14.6,F10.2,F12.4,G10.2,2F14.6,2I6)'
@@ -1914,7 +1914,7 @@ contains
   integer :: ir
   integer :: iz
 
-  if (ihop_dumpfreq < 0) then
+  if (belli_dumpfreq < 0) then
     goto 99999
   endif
   write(unit=arrfile,fmt='(I0)') maxval(narrival(1:nrr,1:nrz))
