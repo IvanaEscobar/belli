@@ -37,8 +37,8 @@ a source and receiver. The number of range points can vary from 2 to N, and is s
 @software{belli,
     author={Ivana Escobar},
     title = {{belli}: Underwater Acoustics for MITgcm},
-    version = {0.6},
+    version = {0.7},
     year = {2026},
-    url = {https://github.com/IvanaEscobar/belli/tree/v0.6}
+    url = {https://github.com/IvanaEscobar/belli/tree/v0.7}
 }
 ```
