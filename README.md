@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/710899553.svg)](https://doi.org/10.5281/zenodo.21298576)
+
 # belli: Underwater acoustics for MITgcm
 
 `belli` is a physics package in [MITgcm](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html), allowing for simulations to investigate underwater acoustics. This code, based on Modern Fortran, is a ray-trace simulation of sound propagation. Lightweight cost function routines are based on [`pkg/obsfit`](https://github.com/MITgcm/MITgcm/tree/master/pkg/obsfit) written by Ariane Verdy Ph.D. 
@@ -45,8 +47,9 @@ a source and receiver. The number of range points can vary from 2 to N, and is s
 @software{belli,
     author={Ivana Escobar},
     title = {{belli}: Underwater Acoustics for MITgcm},
-    version = {0.7},
+    version = {0.8},
     year = {2026},
-    url = {https://github.com/IvanaEscobar/belli/tree/v0.7}
+    url = {https://github.com/IvanaEscobar/belli/tree/v0.8}
+    doi = {10.5281/zenodo.21298577}
 }
 ```
